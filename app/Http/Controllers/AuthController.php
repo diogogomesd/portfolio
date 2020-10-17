@@ -47,7 +47,7 @@ class AuthController extends Controller
                     'email' => $email,
                     'password'=> $password
                 ]);
-                if(!token){
+                if(!$token){
                     $array['error'] = 'Ocorreu um erro!';
                     return $array;
                 }
@@ -91,6 +91,25 @@ class AuthController extends Controller
         }
 
         //pega os dados do usuário com avatar
+        $info = auth()->user();
+        $info['avatar'] = url('media/avatars/'.$info['avatar']);
+        $array['data'] = $info;
+        $array['token'] = $token;
+
+        return $array;
+    }
+
+    //desloga usuário
+    public function logout(){
+        auth()->logout();
+        return['error'=> ''];
+    }
+
+    //atualiza o token
+    public function refresh(){
+        $array = ['error'=> ''];
+
+        $token = auth()->refresh();
         $info = auth()->user();
         $info['avatar'] = url('media/avatars/'.$info['avatar']);
         $array['data'] = $info;
