@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class UserAppointment extends Model
 {
     use HasFactory;
-    protected $table = 'userAppointments';
+    protected $table = 'userappointments';
     public $timestamps = false;
 
 }

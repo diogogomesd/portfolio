@@ -13,6 +13,8 @@ class AuthController extends Controller
         $this->middleware('auth:api', ['except'=> ['create', 'login']]);
     }
 
+
+    //função para criação de usuario
     public function create(Request $request){
         $array = ['error' => ''];
 
@@ -21,13 +23,18 @@ class AuthController extends Controller
             'email'=> 'required|email',
             'password'=> 'required'
         ]);
+
+        //validador dos campos preenchidos
         if(!$validator->fails()){
             $name = $request->input('name');
             $email = $request->input('email');
             $password = $request->input('password');
 
+            //verifica se o email ja consta no banco de dados
             $emailExists = User::where('email', $email)->count();
+            //realiza a inserção no banco de dados
             if($emailExists === 0){
+                //transform o que foi digitado no campo password em um hash
                 $hash = password_hash($password, PASSWORD_DEFAULT);
 
                 $newUser = new User();
@@ -49,8 +56,6 @@ class AuthController extends Controller
                 $array['data'] = $info;
                 $array['token'] = $token;
 
-
-
             }else{
                 $array['error'] = 'E-mail já cadastrado';
                 return $array;
@@ -60,6 +65,36 @@ class AuthController extends Controller
             $array['error'] = 'Dados incorretos';
             return $array;
         }
+
+        return $array;
+    }
+
+    //função para realizar login
+    public function login(Request $request){
+        $array = ['error'=> ''];
+        
+        //pega os dados do usuario
+        $email = $request->input('email');
+        $password = $request->input('password');
+
+        //verifica se existem
+        $token = auth()->attempt([
+            'email'=> $email,
+            'password'=>$password
+        ]);
+
+        //da aviso caso não haja usuario
+        if(!$token){
+            $array['error'] = 'Usuário e/ou senha estão incorretos';
+
+            return $array;
+        }
+
+        //pega os dados do usuário com avatar
+        $info = auth()->user();
+        $info['avatar'] = url('media/avatars/'.$info['avatar']);
+        $array['data'] = $info;
+        $array['token'] = $token;
 
         return $array;
     }
